@@ -11,14 +11,24 @@ class Personaje:
         self.velocidad_movimiento = 10
         self.velocidad_y = 0
         
-        self.fuerza_salto = -15 #Velocidad de salto
+        self.fuerza_salto = -15 #Velocidad de salto                
+        
+        #Ponemos la imagen del personaje
+        
+        self.imagen_frente = pygame.image.load("assets/personaje_de_frente.png")
+        self.imagen_frente = pygame.transform.scale(self.imagen_frente,(self.ancho, self.alto)) #Ajustamos medida Cualquiera cosa cambiar ancho y alto
 
-        self.imagen = pygame.image.load("assets/personaje.png.png")                 #Ponemos la imagen del personaje
-        self.imagen = pygame.transform.scale(self.imagen,(self.ancho, self.alto))   #Ajustamos medida Cualquiera cosa cambiar ancho y alto
+        self.imagen_derecha = pygame.image.load("assets/personaje_de_costado.png")
+        self.imagen_derecha = pygame.transform.scale(self.imagen_derecha,(self.ancho, self.alto))
+        
+        self.imagen_izquierda = pygame.transform.flip(self.imagen_derecha,True,False)
+        self.imagen_izquierda = pygame.transform.scale(self.imagen_izquierda,(self.ancho, self.alto))
+        
+        self.estado_imagen = "frente"
 
         self.en_suelo = True #Condicion para no poder volvar
     
-        self.rect = True #Esto hablarlo con franco
+        self.rect = True #Esto hablarlo con franco (PLATAFORMAS)
     
     def limitar_movimiento(self, ancho_pantalla):
         pass
@@ -35,25 +45,37 @@ class Personaje:
             self.en_suelo = True
 
     def saltar(self):
-        self.velocidad_y = self.fuerza_salto #Velocidad de salto (En algun momento tiene que disminuir)
+        self.velocidad_y = self.fuerza_salto    #Velocidad de salto (En algun momento tiene que disminuir)
         self.en_suelo = False
 
     def mover(self):
         teclas = pygame.key.get_pressed()
 
         if teclas[pygame.K_a]:
-            self.x -= self.velocidad_movimiento #Movimiento horizontal
-
-        if teclas[pygame.K_d]:
+            self.x -= self.velocidad_movimiento     #Movimiento horizontal
+            self.estado_imagen = "izquierda"
+        
+        elif teclas[pygame.K_d]:
             self.x += self.velocidad_movimiento
-
+            self.estado_imagen = "derecha"
+        
+        else:
+            self.estado_imagen = "frente"
+        
         if teclas[pygame.K_SPACE] and self.en_suelo == True:
             self.saltar()
 
 
     def dibujar(self, pantalla):
-        pantalla.blit(self.imagen,      #Insertamos personaje
-        (self.x, self.y, self.ancho, self.alto))    #Parametros del personaje
+        if self.estado_imagen == "frente":
+            pantalla.blit(self.imagen_frente,      
+            (self.x, self.y, self.ancho, self.alto))           #Dibujamos con condicion 
+        elif self.estado_imagen == "derecha":
+            pantalla.blit(self.imagen_derecha,      
+            (self.x, self.y, self.ancho, self.alto))
+        else:
+            pantalla.blit(self.imagen_izquierda,      
+            (self.x, self.y, self.ancho, self.alto))
 
     
 
