@@ -2,17 +2,16 @@ import pygame
 
 class Personaje:
     def __init__(self):
+        
+        #Parametros de imagen
+        
         self.x = 400
         self.y = 100    #Posicion del personaje
 
         self.ancho = 120     #Tamaño del personaje
         self.alto = 120    
 
-        self.velocidad_movimiento = 10
-        self.velocidad_y = 0
-        
-        self.fuerza_salto = -15 #Velocidad de salto                
-        
+            
         #Ponemos la imagen del personaje
         
         self.imagen_frente = pygame.image.load("assets/personaje_de_frente.png")
@@ -22,12 +21,24 @@ class Personaje:
         self.imagen_derecha = pygame.transform.scale(self.imagen_derecha,(self.ancho, self.alto))
         
         self.imagen_izquierda = pygame.transform.flip(self.imagen_derecha,True,False)
-        self.imagen_izquierda = pygame.transform.scale(self.imagen_izquierda,(self.ancho, self.alto))
+
         
         self.estado_imagen = "frente"
 
         self.tiempo_quieto = 0
 
+        #Mecanicas velocidades etc
+
+        self.velocidad_x = 0
+
+        self.velocidad_movimiento = 2
+        
+        self.velocidad_maxima = 12
+        
+        self.velocidad_y = 0
+        
+        self.fuerza_salto = -15 #Velocidad de salto                
+        
         self.en_suelo = True #Condicion para no poder volvar
     
         self.rect = True #Esto hablarlo con franco (PLATAFORMAS)
@@ -37,30 +48,47 @@ class Personaje:
     
     def gravedad(self):
         self.velocidad_y += 1
-        
 
     def actualizar_pos(self):
         self.y += self.velocidad_y
+        
         if self.y > 490:
+            
             self.y = 490        #PISO (por asi decirlo)
             self.velocidad_y = 0
             self.en_suelo = True
+        
+        self.x += self.velocidad_x
+        if self.velocidad_x > 0:
+            self.velocidad_x -= 1   #Friccion
 
+        elif self.velocidad_x < 0:
+            self.velocidad_x += 1 
+    
     def saltar(self):
         self.velocidad_y = self.fuerza_salto    #Velocidad de salto (En algun momento tiene que disminuir)
-        self.en_suelo = False
+        self.en_suelo = False                           #Llamo saltar desde mover
 
     def mover(self):
         teclas = pygame.key.get_pressed()
 
         if teclas[pygame.K_a]:
-            self.x -= self.velocidad_movimiento     #Movimiento horizontal
-            self.estado_imagen = "izquierda"
+            
+            #Movimiento horizontal
+            
+            if self.velocidad_x > -self.velocidad_maxima:
+                self.velocidad_x -= self.velocidad_movimiento
+            
+            self.estado_imagen = "izquierda"        #Para la imagen
             self.tiempo_quieto = 8
+        
         elif teclas[pygame.K_d]:
-            self.x += self.velocidad_movimiento
+            if self.velocidad_x < self.velocidad_maxima:
+                self.velocidad_x += self.velocidad_movimiento
+            
             self.estado_imagen = "derecha"
             self.tiempo_quieto = 8
+        
         else:
                 if self.tiempo_quieto > 0:
                     self.tiempo_quieto -= 1
