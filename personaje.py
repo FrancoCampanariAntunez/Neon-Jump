@@ -5,7 +5,7 @@ class Personaje:
         
         #Parametros de imagen
         
-        self.x = 400
+        self.x = 683
         self.y = 100    #Posicion del personaje
 
         self.ancho = 120     #Tamaño del personaje
@@ -29,16 +29,20 @@ class Personaje:
 
         #Mecanicas velocidades etc
 
-        self.velocidad_x = 0
+        self.velocidad_x = 0.0
 
-        self.velocidad_movimiento = 2
+        self.velocidad_movimiento = 1
         
-        self.velocidad_maxima = 12
+        self.velocidad_maxima = 15
         
         self.velocidad_y = 0
         
-        self.fuerza_salto = -15 #Velocidad de salto                
+        self.fuerza_salto = -20 #Altura alcanzada               
         
+        self.fuerza_salto_int = -25
+        
+        self.fuerza_salto_max = -35 #Altura maxima alcanzada con velocidad
+
         self.en_suelo = True #Condicion para no poder volvar
     
         self.rect = True #Esto hablarlo con franco (PLATAFORMAS)
@@ -52,22 +56,29 @@ class Personaje:
     def actualizar_pos(self):
         self.y += self.velocidad_y
         
-        if self.y > 490:
+        if self.y > 658:
             
-            self.y = 490        #PISO (por asi decirlo)
+            self.y = 658        #PISO (por asi decirlo)
             self.velocidad_y = 0
             self.en_suelo = True
         
         self.x += self.velocidad_x
         if self.velocidad_x > 0:
-            self.velocidad_x -= 1   #Friccion
+            self.velocidad_x -= 0.5   #Friccion
 
         elif self.velocidad_x < 0:
-            self.velocidad_x += 1 
+            self.velocidad_x += 0.5 
     
     def saltar(self):
-        self.velocidad_y = self.fuerza_salto    #Velocidad de salto (En algun momento tiene que disminuir)
-        self.en_suelo = False                           #Llamo saltar desde mover
+        if abs(self.velocidad_x) >= 13:                      #Si va mas rapido salta mas alto
+            self.velocidad_y = self.fuerza_salto_max    
+            self.en_suelo = False
+        elif abs(self.velocidad_x) >= 7:
+            self.velocidad_y = self.fuerza_salto_int   #Velocidad de salto (En algun momento tiene que disminuir)
+            self.en_suelo = False
+        else:
+            self.velocidad_y = self.fuerza_salto
+            self.en_suelo = False                       #Llamo saltar desde mover
 
     def mover(self):
         teclas = pygame.key.get_pressed()
@@ -119,7 +130,7 @@ pygame.init()
 
 clock = pygame.time.Clock()
 
-pantalla = pygame.display.set_mode((800, 600))  #Resolucion del juego
+pantalla = pygame.display.set_mode((1366, 768))  #Resolucion del juego
 
 personaje = Personaje()
 
