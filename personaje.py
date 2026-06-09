@@ -26,6 +26,8 @@ class Personaje:
         
         self.estado_imagen = "frente"
 
+        self.tiempo_quieto = 0
+
         self.en_suelo = True #Condicion para no poder volvar
     
         self.rect = True #Esto hablarlo con franco (PLATAFORMAS)
@@ -54,13 +56,16 @@ class Personaje:
         if teclas[pygame.K_a]:
             self.x -= self.velocidad_movimiento     #Movimiento horizontal
             self.estado_imagen = "izquierda"
-        
+            self.tiempo_quieto = 8
         elif teclas[pygame.K_d]:
             self.x += self.velocidad_movimiento
             self.estado_imagen = "derecha"
-        
+            self.tiempo_quieto = 8
         else:
-            self.estado_imagen = "frente"
+                if self.tiempo_quieto > 0:
+                    self.tiempo_quieto -= 1
+                else:
+                    self.estado_imagen = "frente"
         
         if teclas[pygame.K_SPACE] and self.en_suelo == True:
             self.saltar()
