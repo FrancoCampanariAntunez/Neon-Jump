@@ -14,18 +14,37 @@ class Personaje:
             
         #Ponemos la imagen del personaje
         
+        self.caminar_derecha = [
+        pygame.image.load("assets/caminar_1.png"),
+        pygame.image.load("assets/caminar_2.png"),
+        pygame.image.load("assets/caminar_3.png")
+        ]
+
+        for i in range(len(self.caminar_derecha)):              #Reduzco lineas de codigo con un for
+            self.caminar_derecha[i] = pygame.transform.scale( 
+            self.caminar_derecha[i],
+            (self.ancho, self.alto)
+            )
+
+        self.caminar_izquierda = []
+        
+        for imagen in self.caminar_derecha:
+            self.caminar_izquierda.append(
+            pygame.transform.flip(imagen, True, False)
+            )
+        
         self.imagen_frente = pygame.image.load("assets/personaje_de_frente.png")
         self.imagen_frente = pygame.transform.scale(self.imagen_frente,(self.ancho, self.alto)) #Ajustamos medida Cualquiera cosa cambiar ancho y alto
-
-        self.imagen_derecha = pygame.image.load("assets/personaje_de_costado.png")
-        self.imagen_derecha = pygame.transform.scale(self.imagen_derecha,(self.ancho, self.alto))
-        
-        self.imagen_izquierda = pygame.transform.flip(self.imagen_derecha,True,False)
 
         
         self.estado_imagen = "frente"
 
         self.tiempo_quieto = 0
+
+        self.frame_actual = 0               #Para caminar animacion
+        
+        self.contador_animacion = 0   # contador_animacion funciona como un temporizador.
+        # Evita que la animación cambie de imagen demasiado rápido.
 
         #Mecanicas velocidades etc
 
@@ -41,7 +60,7 @@ class Personaje:
         
         self.fuerza_salto_int = -25
         
-        self.fuerza_salto_max = -35 #Altura maxima alcanzada con velocidad
+        self.fuerza_salto_max = -30 #Altura maxima alcanzada con velocidad
 
         self.en_suelo = True #Condicion para no poder volvar
     
@@ -92,19 +111,40 @@ class Personaje:
             
             self.estado_imagen = "izquierda"        #Para la imagen
             self.tiempo_quieto = 8
+            
+            self.contador_animacion += 1
+
+            if self.contador_animacion >= 10:           #Para la animacion de caminar
+                self.contador_animacion = 0
+                self.frame_actual += 1
+
+            if self.frame_actual >= 3:
+                self.frame_actual = 0
         
         elif teclas[pygame.K_d]:
             if self.velocidad_x < self.velocidad_maxima:
                 self.velocidad_x += self.velocidad_movimiento
             
-            self.estado_imagen = "derecha"
+            self.estado_imagen = "derecha"                      #Delay para la imagen de cuando queda de frente
             self.tiempo_quieto = 8
-        
+
+            self.contador_animacion += 1
+            
+            if self.contador_animacion >= 10:                   #Para la animacion de caminar
+                self.contador_animacion = 0
+                self.frame_actual += 1
+
+            if self.frame_actual >= 3:
+                self.frame_actual = 0
+
+
         else:
                 if self.tiempo_quieto > 0:
                     self.tiempo_quieto -= 1
                 else:
                     self.estado_imagen = "frente"
+                    self.frame_actual = 0
+                    self.contador_animacion = 0
         
         if teclas[pygame.K_SPACE] and self.en_suelo == True:
             self.saltar()
@@ -114,13 +154,18 @@ class Personaje:
         if self.estado_imagen == "frente":
             pantalla.blit(self.imagen_frente,      
             (self.x, self.y, self.ancho, self.alto))           #Dibujamos con condicion 
+       
         elif self.estado_imagen == "derecha":
-            pantalla.blit(self.imagen_derecha,      
-            (self.x, self.y, self.ancho, self.alto))
-        else:
-            pantalla.blit(self.imagen_izquierda,      
-            (self.x, self.y, self.ancho, self.alto))
+            pantalla.blit(
+            self.caminar_derecha[self.frame_actual],
+            (self.x, self.y)
+            )
 
+        else:
+            pantalla.blit(
+            self.caminar_izquierda[self.frame_actual],
+            (self.x, self.y)
+            )
     
 
 
