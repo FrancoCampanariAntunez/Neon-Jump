@@ -5,15 +5,23 @@ class Personaje:
         self.x = 400
         self.y = 100    #Posicion del personaje
 
-        self.ancho = 50     #Tamaño del personaje
-        self.alto = 50    
+        self.ancho = 120     #Tamaño del personaje
+        self.alto = 120    
 
         self.velocidad_movimiento = 10
         self.velocidad_y = 0
         
         self.fuerza_salto = -15 #Velocidad de salto
 
+        self.imagen = pygame.image.load("assets/personaje.png.png")                 #Ponemos la imagen del personaje
+        self.imagen = pygame.transform.scale(self.imagen,(self.ancho, self.alto))   #Ajustamos medida Cualquiera cosa cambiar ancho y alto
+
         self.en_suelo = True #Condicion para no poder volvar
+    
+        self.rect = True #Esto hablarlo con franco
+    
+    def limitar_movimiento(self, ancho_pantalla):
+        pass
     
     def gravedad(self):
         self.velocidad_y += 1
@@ -21,8 +29,8 @@ class Personaje:
 
     def actualizar_pos(self):
         self.y += self.velocidad_y
-        if self.y > 550:
-            self.y = 550
+        if self.y > 490:
+            self.y = 490        #PISO (por asi decirlo)
             self.velocidad_y = 0
             self.en_suelo = True
 
@@ -44,7 +52,7 @@ class Personaje:
 
 
     def dibujar(self, pantalla):
-        pygame.draw.rect(pantalla,(255,0,0),      #En donde voy a dibujar y su color(255,0,0) es rojo
+        pantalla.blit(self.imagen,      #Insertamos personaje
         (self.x, self.y, self.ancho, self.alto))    #Parametros del personaje
 
     
@@ -77,6 +85,6 @@ while corriendo:
 
 
     pygame.display.flip()
-    clock.tick(60)
+    clock.tick(60)      #FPS LIMIT
 
 pygame.quit()
