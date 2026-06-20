@@ -116,7 +116,7 @@ class Personaje:
         if self.animacion_salto == True:
                  
             if not self.en_suelo:
-                self.angulo += self.velocidad_giro
+                self.angulo = (self.angulo + self.velocidad_giro) % 360
 
             else:
                 self.animacion_salto = False
@@ -190,43 +190,53 @@ class Personaje:
             self.saltar()
 
 
-    def dibujar(self, pantalla):
+    def dibujar(self, pantalla, offset=None):
+
+            if offset is None:
+                pos_pantalla = (self.x, self.y)
         
-        if self.animacion_salto:
-
-            imagen_rotada = pygame.transform.rotate(         #Para animacion salto rota la imagen
-            self.imagen_animacion_salto,
-            self.angulo                                                    #Rota la imagen con el angulo que va rotando
+            else:
+                pos_pantalla = (
+                self.x - offset.x,
+                self.y - offset.y
             )
-
-            rect = imagen_rotada.get_rect(
-            center=(self.x + self.ancho//2,
-                self.y + self.alto//2)
-            )
-
-            pantalla.blit(imagen_rotada, rect.topleft)
-
-            return
         
-        if self.estado_imagen == "frente":
-            pantalla.blit(self.imagen_frente,      
-            (self.x, self.y, self.ancho, self.alto))           #Dibujamos con condicion 
+            if self.animacion_salto:
+
+                imagen_rotada = pygame.transform.rotate(         #Para animacion salto rota la imagen
+                self.imagen_animacion_salto,
+                self.angulo                                                    #Rota la imagen con el angulo que va rotando
+                )
+
+                rect = imagen_rotada.get_rect(
+                center=(
+                pos_pantalla[0] + self.ancho // 2,
+                pos_pantalla[1] + self.alto // 2
+                )
+                )
+
+                pantalla.blit(imagen_rotada, rect.topleft)
+
+                return
+        
+            if self.estado_imagen == "frente":
+                pantalla.blit(self.imagen_frente,pos_pantalla    
+                )      #Dibujamos con condicion 
        
-        elif self.estado_imagen == "derecha":
-            pantalla.blit(
-            self.caminar_derecha[self.frame_actual],
-            (self.x, self.y)
-            )
+            elif self.estado_imagen == "derecha":
+                pantalla.blit(
+                self.caminar_derecha[self.frame_actual],
+                pos_pantalla
+                )
+            else:
+                pantalla.blit(
+                self.caminar_izquierda[self.frame_actual],
+                pos_pantalla
+                )
 
-        else:
-            pantalla.blit(
-            self.caminar_izquierda[self.frame_actual],
-            (self.x, self.y)
-            )
-
-        #Dibujar la hitbox si mostrar_hitbox=True
-        if mostrar_hitbox:
-            pygame.draw.rect(pantalla, (0, 255, 0), self.rect, 2) # catalano
+            #Dibujar la hitbox si mostrar_hitbox=True
+            if mostrar_hitbox:
+                pygame.draw.rect(pantalla, (0, 255, 0), self.rect, 2) # catalano
     
 
 
