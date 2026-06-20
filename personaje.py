@@ -5,13 +5,12 @@ class Personaje:
         
         #Parametros de imagen
         
-        self.x = 683
-        self.y = 100    #Posicion del personaje
+        self.x = 620
+        self.y = 678    #Posicion del personaje #spawn
 
-        self.ancho = 120     #Tamaño del personaje
-        self.alto = 120    
-
-            
+        self.ancho = 100     #Tamaño del personaje
+        self.alto = 100
+  
         #Ponemos la imagen del personaje
         
         self.caminar_derecha = [
@@ -36,6 +35,9 @@ class Personaje:
         self.imagen_frente = pygame.image.load("assets/personaje_de_frente.png")
         self.imagen_frente = pygame.transform.scale(self.imagen_frente,(self.ancho, self.alto)) #Ajustamos medida Cualquiera cosa cambiar ancho y alto
 
+
+        self.imagen_animacion_salto = pygame.image.load("assets/personaje_estrella_salto.png")
+        self.imagen_animacion_salto = pygame.transform.scale(self.imagen_animacion_salto,(self.ancho, self.alto))
         
         self.estado_imagen = "frente"
 
@@ -45,6 +47,14 @@ class Personaje:
         
         self.contador_animacion = 0   # contador_animacion funciona como un temporizador.
         # Evita que la animación cambie de imagen demasiado rápido.
+        
+        #Animacion para el super salto
+
+        self.animacion_salto = False
+
+        self.angulo = 0
+
+        self.velocidad_giro = 20
 
         #Mecanicas velocidades etc
 
@@ -64,22 +74,34 @@ class Personaje:
 
         self.en_suelo = True #Condicion para no poder volvar
     
-        self.rect = True #Esto hablarlo con franco (PLATAFORMAS)
+        # Desplazamiento de la hitbox respecto de la imagen
+        self.offset_x = 42
+        self.offset_y = 10                                 # catalano
+
+        # Hitbox del personaje
+        self.rect = pygame.Rect(self.x + self.offset_x,self.y + self.offset_y,45,100) # catalano
     
     def limitar_movimiento(self, ancho_pantalla):
-        pass
+        if  self.x <-21:
+            self.x = -21
+            self.velocidad_x = 0
+
+    # Limite derecho
+        elif self.x > ancho_pantalla - self.ancho:
+             self.x = ancho_pantalla - self.ancho
+             self.velocidad_x = 0
     
     def gravedad(self):
-        self.velocidad_y += 1
+        self.velocidad_y += 0.8
 
     def actualizar_pos(self):
         self.y += self.velocidad_y
         
-        if self.y > 658:
+        if self.y > 678:
             
-            self.y = 658        #PISO (por asi decirlo)
+            self.y = 678        #PISO (por asi decirlo)
             self.velocidad_y = 0
-            self.en_suelo = True
+            self.en_suelo = True       #todo esto esta comentado para que tome como piso original el piso de las plataformas (catalano)
         
         self.x += self.velocidad_x
         if self.velocidad_x > 0:
@@ -87,10 +109,28 @@ class Personaje:
 
         elif self.velocidad_x < 0:
             self.velocidad_x += 0.5 
+
+        # Actualizar la hitbox
+        self.rect.topleft = (self.x + self.offset_x,self.y + self.offset_y) # catalano
+
+        if self.animacion_salto == True:
+                 
+            if not self.en_suelo:
+                self.angulo += self.velocidad_giro
+
+            else:
+                self.animacion_salto = False
+                self.angulo = 0
+
     
     def saltar(self):
         if abs(self.velocidad_x) >= 13:                      #Si va mas rapido salta mas alto
             self.velocidad_y = self.fuerza_salto_max    
+            
+            self.animacion_salto = True  #Animacion para el salto
+            
+            self.angulo = 0
+            
             self.en_suelo = False
         elif abs(self.velocidad_x) >= 7:
             self.velocidad_y = self.fuerza_salto_int   #Velocidad de salto (En algun momento tiene que disminuir)
@@ -114,7 +154,7 @@ class Personaje:
             
             self.contador_animacion += 1
 
-            if self.contador_animacion >= 10:           #Para la animacion de caminar
+            if self.contador_animacion >= 6:           #Para la animacion de caminar
                 self.contador_animacion = 0
                 self.frame_actual += 1
 
@@ -130,7 +170,7 @@ class Personaje:
 
             self.contador_animacion += 1
             
-            if self.contador_animacion >= 10:                   #Para la animacion de caminar
+            if self.contador_animacion >= 6:                   #Para la animacion de caminar
                 self.contador_animacion = 0
                 self.frame_actual += 1
 
@@ -151,6 +191,23 @@ class Personaje:
 
 
     def dibujar(self, pantalla):
+        
+        if self.animacion_salto:
+
+            imagen_rotada = pygame.transform.rotate(         #Para animacion salto rota la imagen
+            self.imagen_animacion_salto,
+            self.angulo                                                    #Rota la imagen con el angulo que va rotando
+            )
+
+            rect = imagen_rotada.get_rect(
+            center=(self.x + self.ancho//2,
+                self.y + self.alto//2)
+            )
+
+            pantalla.blit(imagen_rotada, rect.topleft)
+
+            return
+        
         if self.estado_imagen == "frente":
             pantalla.blit(self.imagen_frente,      
             (self.x, self.y, self.ancho, self.alto))           #Dibujamos con condicion 
@@ -166,6 +223,10 @@ class Personaje:
             self.caminar_izquierda[self.frame_actual],
             (self.x, self.y)
             )
+
+        #Dibujar la hitbox si mostrar_hitbox=True
+        if mostrar_hitbox:
+            pygame.draw.rect(pantalla, (0, 255, 0), self.rect, 2) # catalano
     
 
 
@@ -178,6 +239,8 @@ clock = pygame.time.Clock()
 pantalla = pygame.display.set_mode((1366, 768))  #Resolucion del juego
 
 personaje = Personaje()
+
+mostrar_hitbox = False
 
 corriendo = True
 
@@ -192,6 +255,7 @@ while corriendo:
     personaje.mover()
     personaje.gravedad()
     personaje.actualizar_pos()
+    personaje.limitar_movimiento(1386)
     personaje.dibujar(pantalla)
 
 
