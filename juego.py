@@ -22,7 +22,7 @@ mostrar_hitbox = False
 pygame.mixer.init()
 
 pygame.mixer.music.load("musica/cancionfondo.mp3")
-pygame.mixer.music.set_volume(0.5)  # volumen (0.0 a 1.0)
+pygame.mixer.music.set_volume(0.2)  # volumen (0.0 a 1.0)
 pygame.mixer.music.play(-1)  # -1 = loop infinito
 
 fondo = pygame.image.load("imagenes\ciudad.WEBP")

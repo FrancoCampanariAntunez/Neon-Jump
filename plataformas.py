@@ -102,7 +102,7 @@ def generar_plataformas(ultima_y, ancho_pantalla, carriles, plataformas, altura_
     
     
     d = min(d,3.0) # suaviza la curva de dificultad
-    d = d**5.0
+    d = d**10.0
     
     # reduce el ancho de la plataforma según la dificultad
     ancho = int(ancho_max - (ancho_max - ancho_min) * d)
@@ -115,7 +115,7 @@ def generar_plataformas(ultima_y, ancho_pantalla, carriles, plataformas, altura_
     
     # define el tipo de plataforma según el progreso del jugador
 
-    if d < 0.5:
+    if d < 1.0:
         tipo = "normal"
     else:
         tipo = "nivel"
