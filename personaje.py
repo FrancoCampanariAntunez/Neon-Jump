@@ -75,8 +75,8 @@ class Personaje:
         self.en_suelo = True #Condicion para no poder volvar
     
         # Desplazamiento de la hitbox respecto de la imagen
-        self.offset_x = 42
-        self.offset_y = 10                                 # catalano
+        self.offset_x = 32
+        self.offset_y = -5                               # catalano
 
         # Hitbox del personaje
         self.rect = pygame.Rect(self.x + self.offset_x,self.y + self.offset_y,45,100) # catalano
@@ -97,11 +97,11 @@ class Personaje:
     def actualizar_pos(self):
         self.y += self.velocidad_y
         
-        if self.y > 678:
+        #if self.y > 678:
             
-            self.y = 678        #PISO (por asi decirlo)
-            self.velocidad_y = 0
-            self.en_suelo = True       #todo esto esta comentado para que tome como piso original el piso de las plataformas (catalano)
+            #self.y = 678        #PISO (por asi decirlo)
+            #self.velocidad_y = 0
+            #self.en_suelo = True       #todo esto esta comentado para que tome como piso original el piso de las plataformas (catalano)
         
         self.x += self.velocidad_x
         if self.velocidad_x > 0:
@@ -235,41 +235,40 @@ class Personaje:
                 )
 
             #Dibujar la hitbox si mostrar_hitbox=True
-            if mostrar_hitbox:
-                pygame.draw.rect(pantalla, (0, 255, 0), self.rect, 2) # catalano
+            #if mostrar_hitbox:
+                #pygame.draw.rect(pantalla, (0, 255, 0), self.rect, 2) # catalano
     
 
 
 
+#pygame.init()
 
-pygame.init()
+#clock = pygame.time.Clock()
 
-clock = pygame.time.Clock()
+#pantalla = pygame.display.set_mode((1366, 768))  #Resolucion del juego
 
-pantalla = pygame.display.set_mode((1366, 768))  #Resolucion del juego
+#personaje = Personaje()
 
-personaje = Personaje()
+#mostrar_hitbox = False
 
-mostrar_hitbox = False
+#corriendo = True
 
-corriendo = True
+#while corriendo:
 
-while corriendo:
+    #for evento in pygame.event.get():
+        #if evento.type == pygame.QUIT:
+            #corriendo = False
 
-    for evento in pygame.event.get():
-        if evento.type == pygame.QUIT:
-            corriendo = False
+    #pantalla.fill((0,0,0))
 
-    pantalla.fill((0,0,0))
-
-    personaje.mover()
-    personaje.gravedad()
-    personaje.actualizar_pos()
-    personaje.limitar_movimiento(1386)
-    personaje.dibujar(pantalla)
+    #personaje.mover()
+    #personaje.gravedad()
+    #personaje.actualizar_pos()
+    #personaje.limitar_movimiento(1386)
+    #personaje.dibujar(pantalla)
 
 
-    pygame.display.flip()
-    clock.tick(60)      #FPS LIMIT
+    #pygame.display.flip()
+    #clock.tick(60)      #FPS LIMIT
 
-pygame.quit()
+#pygame.quit()
