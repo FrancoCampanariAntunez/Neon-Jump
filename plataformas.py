@@ -3,7 +3,7 @@ import random
 
 from pygame.examples.stars import move_stars  # importa ejemplo de pygame (no se usa en este código)
 
-from personaje import Personaje
+
 
 
 class Plataforma:

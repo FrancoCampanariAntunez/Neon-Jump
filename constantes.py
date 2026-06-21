@@ -1,0 +1,4 @@
+ANCHO_VENTANA = 1366
+ALTO_VENTANA = 768
+
+volumen = 0.0

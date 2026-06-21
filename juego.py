@@ -15,14 +15,18 @@ pygame.init()
 ANCHO = 1366
 ALTO = 768
 screen = pygame.display.set_mode((ANCHO, ALTO))
+en_menu = True
 clock = pygame.time.Clock()
 
 mostrar_hitbox = False
 
 pygame.mixer.init()
 
-pygame.mixer.music.load("musica/cancionfondo.mp3")
-pygame.mixer.music.set_volume(0.2)  # volumen (0.0 a 1.0)
+from menu import *
+
+
+pygame.mixer.music.load("sonido/musicaintro3.mp3")
+pygame.mixer.music.set_volume(0.0)  # volumen (0.0 a 1.0)
 pygame.mixer.music.play(-1)  # -1 = loop infinito
 
 fondo = pygame.image.load("imagenes\ciudad.WEBP")
@@ -143,6 +147,31 @@ while corriendo:
         if event.type == pygame.QUIT:
             corriendo = False
 
+        if en_menu:
+            accion = actualizar_menu(event)
+
+            if accion == "JUGAR":
+                en_menu = False
+
+            elif accion == "SALIR":
+                corriendo = False
+                
+                pygame.mixer.music.load("musica/cancionfondo.mp3")
+                pygame.mixer.music.set_volume(0.1)
+                pygame.mixer.music.play(-1)
+                
+                en_menu = False
+
+    if en_menu:
+
+        dibujar_menu(screen)
+
+        pygame.display.flip()
+        clock.tick(60)
+
+        continue
+    
+    
     screen.fill((0,0,0))
     screen.blit(fondo,(0,0))
 
@@ -153,7 +182,8 @@ while corriendo:
                 reiniciar_juego()
             
             elif event.key == pygame.K_ESCAPE:
-                corriendo = False
+                reiniciar_juego()
+                en_menu = True
         
         game_over.dibujar(screen, ANCHO, ALTO, puntos)
 
