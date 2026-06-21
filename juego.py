@@ -90,6 +90,52 @@ corriendo = True
 
 camara_activa = False
 
+
+def reiniciar_juego():
+    global player
+    global plataformas
+    global ultima_y
+    global altura_max
+    global altura_inicial
+    global puntos
+    global offset
+    global camara_activa
+    global game_over
+    global piso
+
+    player = Personaje()
+
+    plataformas = []
+
+    ultima_y = ALTO - 40 - 50
+
+    altura_max = 0
+    puntos = 0
+
+    altura_inicial = player.rect.y - 40
+
+    offset.x = 0
+    offset.y = 0
+
+    piso = Piso(0, ALTO - 40, ANCHO, 40, imagen_piso)
+    
+    camara_activa = False
+
+
+    game_over.activo = False
+
+    for i in range(10):
+        nueva, ultima_y = generar_plataformas(
+            ultima_y,
+            ANCHO,
+            carriles,
+            plataformas,
+            altura_max,
+            imagen_plataforma,
+            imagen_plataforma2
+        )
+        plataformas.append(nueva)
+
 while corriendo:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -99,7 +145,14 @@ while corriendo:
     screen.blit(fondo,(0,0))
 
     if game_over.activo:
-        screen.fill((0,0,0))
+        if event.type == pygame.KEYDOWN:
+            
+            if event.key == pygame.K_RETURN:
+                reiniciar_juego()
+            
+            elif event.key == pygame.K_ESCAPE:
+                corriendo = False
+        
         game_over.dibujar(screen, ANCHO, ALTO, puntos)
 
         pygame.display.flip()
