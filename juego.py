@@ -1,0 +1,334 @@
+import pygame  
+import random  
+
+from pygame.examples.stars import move_stars  # importa ejemplo de pygame (no se usa en este código)
+
+from personaje import Personaje
+
+
+class Plataforma:
+    def __init__(self, x, y, ancho, alto, tipo="normal",
+                 img_normal=None, img_nivel=None):
+
+        ajuste_y = 20  # ajuste vertical para alinear mejor la hitbox con la imagen
+
+        self.rect = pygame.Rect(  # crea la hitbox de la plataforma
+            x,
+            y + ajuste_y,  # desplaza la hitbox hacia abajo para ajustarla visualmente
+            ancho,
+            alto - ajuste_y  # reduce altura de la hitbox respecto a la imagen
+        )
+
+        if tipo == "nivel":  # si la plataforma es de tipo nivel
+            img = img_nivel  # usa imagen de nivel
+        else:
+            img = img_normal  # si no, usa imagen normal
+
+        self.imagen = pygame.transform.scale(img, (ancho, alto))  # escala la imagen al tamaño de la plataforma
+
+        # Guardar dónde dibujar la imagen
+        self.x_imagen = x  # guarda posición X de dibujo
+        self.y_imagen = y  # guarda posición Y de dibujo
+
+    def dibujar(self, pantalla, offset):
+
+        pos_pantalla = (self.x_imagen - offset.x, self.y_imagen - offset.y)  # aplica cámara (offset)
+        pantalla.blit(self.imagen, pos_pantalla)  # dibuja la imagen en pantalla
+        
+        if mostrar_hitbox:  # si está activado el debug de hitbox
+            pygame.draw.rect(pantalla, (255, 0, 0), self.rect, 2)  # dibuja contorno rojo de la colisión
+
+
+class Piso:
+    def __init__(self, x, y, ancho, alto, imagen):
+        self.imagen = pygame.transform.scale(imagen, (ancho, alto))  # escala la imagen del piso
+        self.rect = pygame.Rect(x, y, ancho, alto)  # crea la hitbox del piso
+        self.x_imagen = x  # guarda posición X de dibujo
+        self.y_imagen = y  # guarda posición Y de dibujo
+
+        # Reemplaza la imagen heredada por la imagen específica del piso
+        self.imagen = pygame.transform.scale(imagen, (ancho, alto))  # vuelve a escalar la imagen (redundante)
+
+    def dibujar(self, pantalla, offset):
+
+        pos_pantalla = (self.x_imagen - offset.x, self.y_imagen - offset.y)  # aplica desplazamiento de cámara
+        # Muestra en pantalla la imagen del piso
+        pantalla.blit(self.imagen, pos_pantalla)  # dibuja el piso
+        
+        # Lo mismo que antes para la hitbox
+        if mostrar_hitbox:  # si está activado debug
+            pygame.draw.rect(pantalla, (255, 0, 0), self.rect, 2)  # dibuja hitbox en rojo
+
+
+def dificultad_por_altura(y):
+    # cuanto más arriba, más difícil (pero lento)
+    if y < 0:  # solo aplica dificultad si está por encima del origen
+        return min(1.0, (abs(y) / 8000) ** 1.3)  # aumenta dificultad progresivamente
+    return 0.0  # sin dificultad en zonas bajas
+
+
+
+
+
+# Carga la imagen de la plataforma conservando la transparencia
+imagen_plataforma = pygame.image.load("imagenes/plataforma.png")  # carga imagen con alfa
+
+# Estas 2 lineas son para que la imagen de la plataforma se ajuste a la hitbox de la plataforma
+rect_real = imagen_plataforma.get_bounding_rect()  # obtiene área visible real de la imagen
+imagen_plataforma = imagen_plataforma.subsurface(rect_real).copy()  # recorta bordes transparentes
+
+mostrar_hitbox = False  # activa/desactiva visualización de hitbox
+
+def generar_plataformas(ultima_y, ancho_pantalla):
+    # genera una separación aleatoria en Y entre la última plataforma y la nueva
+    separacion_y = random.randint(60, 200)
+    
+    # calcula la nueva posición Y restando la separación (se genera más arriba)
+    y = ultima_y - separacion_y
+
+    # elige un carril aleatorio (posición X posible para la plataforma)
+    x = random.choice(carriles)
+    
+    # evita que dos plataformas seguidas aparezcan en el mismo carril
+    while plataformas and plataformas[-1].rect.x == x:
+        x = random.choice(carriles)
+    
+    # calcula la dificultad en base a la altura (cuanto más alto, más difícil)
+    d= dificultad = dificultad_por_altura(y)
+    
+    # ancho mínimo y máximo posibles de la plataforma
+    ancho_min = 100
+    ancho_max = 280
+    
+    
+    d = min(d,3.0) # suaviza la curva de dificultad
+    d = d**5.0
+    
+    # reduce el ancho de la plataforma según la dificultad
+    ancho = int(ancho_max - (ancho_max - ancho_min) * d)
+
+    ancho = max(ancho, ancho_min)  # límite mínimo
+    
+    # altura fija de la plataforma
+    alto = 75
+
+    global altura_max
+    
+    # define el tipo de plataforma según el progreso del jugador
+    dificultad = dificultad_por_altura(y)
+
+    if dificultad < 0.5:
+        tipo = "normal"
+    else:
+     tipo = "nivel"
+    
+     # crea la plataforma ya como sprite con sus parámetros finales
+    plataforma = Plataforma(
+    x,
+    y,
+    ancho,
+    alto,
+    tipo,
+    imagen_plataforma,
+    imagen_plataforma2
+    )
+
+    return plataforma, y
+
+
+
+
+
+
+
+
+
+pygame.init()
+#Creacion de la ventana
+ANCHO = 1366
+ALTO = 768
+screen = pygame.display.set_mode((ANCHO, ALTO))
+clock = pygame.time.Clock()
+
+mostrar_hitbox = False
+
+pygame.mixer.init()
+
+pygame.mixer.music.load("musica/cancionfondo.mp3")
+pygame.mixer.music.set_volume(0.5)  # volumen (0.0 a 1.0)
+pygame.mixer.music.play(-1)  # -1 = loop infinito
+
+fondo = pygame.image.load("imagenes\ciudad.WEBP")
+# Ajusta el fondo al tamaño de la ventana
+fondo = pygame.transform.scale(fondo, (ANCHO, ALTO))
+# Carga la imagen de la plataforma conservando la transparencia
+imagen_plataforma = pygame.image.load("imagenes\plataforma.png").convert_alpha()
+imagen_plataforma2 = pygame.image.load("imagenes\plataforma2.png").convert_alpha()
+
+#Estas 2 lineas son para que la imagen de la plataforma se ajuste a la hitbox de la plataforma
+rect_real = imagen_plataforma.get_bounding_rect()
+imagen_plataforma = imagen_plataforma.subsurface(rect_real).copy()
+
+imagen_piso = pygame.image.load("imagenes\piso.png")
+# Ajusta la imagen del piso al ancho de la pantalla
+imagen_piso = pygame.transform.scale(imagen_piso, (ANCHO, 40))
+
+# CARRILES (para la generacion de plataformas)
+# Posiciones posibles en X donde pueden aparecer las plataformas
+carriles = [100, 250, 400, 550, 700, 850, 1000]
+
+# PLATAFORMAS
+#Lista donde se almacenaran las plataformas generadas
+plataformas = []
+
+ultima_y = ALTO - 40 - 50
+
+font = pygame.font.Font("fuentes/Orbitron Medium 500.ttf", 30)
+
+piso = Piso(0,ALTO - 40,ANCHO,40,imagen_piso)
+
+for i in range(10):
+    nueva, ultima_y = generar_plataformas(ultima_y, ANCHO)
+    plataformas.append(nueva)
+
+
+
+player = Personaje()
+
+altura_inicial = player.rect.y - 40
+
+altura_max = 0
+puntos = 0
+
+class Offset:
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+
+offset = Offset()
+# -----------------------------------------------------------------------------------------------------------------------
+corriendo = True
+
+camara_activa = False
+
+while corriendo:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            corriendo = False
+
+    screen.fill((0,0,0))
+    screen.blit(fondo,(0,0))
+
+    # Movimiento
+    player.mover()
+
+    if not player.en_suelo:
+        player.gravedad()
+
+    player.actualizar_pos()
+    player.limitar_movimiento(ANCHO)
+
+    # Por defecto suponemos que NO está apoyado
+    player.en_suelo = False
+
+    # ---------- COLISIONES CON PLATAFORMAS ----------
+    for plataforma in plataformas:
+
+        if (
+            player.velocidad_y >= 0 and
+            player.rect.bottom >= plataforma.rect.top and
+            player.rect.bottom <= plataforma.rect.top + 20 and
+            player.rect.right > plataforma.rect.left and
+            player.rect.left < plataforma.rect.right
+        ):
+
+            player.rect.bottom = plataforma.rect.top
+            player.y = player.rect.y - player.offset_y
+
+            player.rect.topleft = (
+                player.x + player.offset_x,
+                player.y + player.offset_y
+            )
+
+            player.velocidad_y = 0
+            player.en_suelo = True
+
+            break
+
+    # ---------- PISO ----------
+    if not player.en_suelo:
+
+        if player.rect.bottom >= piso.rect.top:
+
+            player.rect.bottom = piso.rect.top
+            player.y = player.rect.y - player.offset_y
+
+            player.rect.topleft = (
+                player.x + player.offset_x,
+                player.y + player.offset_y
+            )
+
+            player.velocidad_y = 0
+            player.en_suelo = True
+
+    altura_actual = max(0, altura_inicial - player.rect.y)
+    altura_max = max(altura_max, altura_actual)
+
+    puntos = int(altura_max / 10)
+
+    # ---------------- CAMARA ----------------
+
+    # activar cámara cuando el jugador empieza a subir
+    if player.rect.top < ALTO * 0.6:
+     camara_activa = True
+
+    # posición inicial fija
+    if not camara_activa:
+     offset.y = 0
+
+    else:
+     # velocidad base muy lenta al inicio
+     velocidad_actual = 0.5 + (altura_max / 5000)
+     velocidad_actual = min(velocidad_actual, 3)
+
+     # suavizado extra
+     velocidad_actual = velocidad_actual * 0.8 + 0.6
+
+     # límite máximo
+     velocidad_actual = min(6, velocidad_actual)
+
+     offset.y -= velocidad_actual
+
+     # posición del jugador en el mundo (NO pantalla)
+     posicion_relativa = player.y - offset.y
+
+     objetivo = ALTO * 0.2
+
+     if posicion_relativa < objetivo:
+        offset.y -= (objetivo - posicion_relativa) * 0.05
+
+
+
+    # Eliminar plataformas viejas
+    for plataforma in plataformas[:]:
+     if plataforma.rect.top > offset.y + ALTO + 500:
+        plataformas.remove(plataforma)
+
+    # Generar plataformas nuevas
+    while ultima_y > offset.y - 3000:
+     nueva, ultima_y = generar_plataformas(ultima_y, ANCHO)
+     plataformas.append(nueva)
+
+
+
+    for plataforma in plataformas:
+        plataforma.dibujar(screen, offset)
+
+    piso.dibujar(screen, offset)
+    player.dibujar(screen, offset)
+
+    texto = font.render(f"Puntos: {puntos}", True, (255, 255, 255))
+    screen.blit(texto, (20, 20))
+
+    pygame.display.flip()
+    clock.tick(60)
