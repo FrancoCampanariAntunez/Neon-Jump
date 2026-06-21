@@ -63,7 +63,7 @@ class Piso:
 def dificultad_por_altura(y):
     # cuanto más arriba, más difícil (pero lento)
     if y < 0:  # solo aplica dificultad si está por encima del origen
-        return min(1.0, (abs(y) / 8000) ** 1.3)  # aumenta dificultad progresivamente
+        return min(1.0, (abs(y) / 25000) ** 0.8)  # aumenta dificultad progresivamente
     return 0.0  # sin dificultad en zonas bajas
 
 
@@ -102,7 +102,7 @@ def generar_plataformas(ultima_y, ancho_pantalla, carriles, plataformas, altura_
     
     
     d = min(d,3.0) # suaviza la curva de dificultad
-    d = d**10.0
+    d = d**2
     
     # reduce el ancho de la plataforma según la dificultad
     ancho = int(ancho_max - (ancho_max - ancho_min) * d)
@@ -115,7 +115,7 @@ def generar_plataformas(ultima_y, ancho_pantalla, carriles, plataformas, altura_
     
     # define el tipo de plataforma según el progreso del jugador
 
-    if d < 1.0:
+    if d < 0.9:
         tipo = "normal"
     else:
         tipo = "nivel"

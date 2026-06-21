@@ -135,7 +135,9 @@ def reiniciar_juego():
             imagen_plataforma2
         )
         plataformas.append(nueva)
-
+    
+    pygame.mixer.music.stop()
+    pygame.mixer.music.play(-1)
 while corriendo:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
