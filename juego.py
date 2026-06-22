@@ -1,12 +1,6 @@
 import pygame  
-import random  
-
-from pygame.examples.stars import move_stars  # importa ejemplo de pygame (no se usa en este código)
-
 from personaje import Personaje
-
 from plataformas import *
-
 from gameover import GameOver
 
 
@@ -146,21 +140,21 @@ while corriendo:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             corriendo = False
-
+        
+        
         if en_menu:
             accion = actualizar_menu(event)
 
             if accion == "JUGAR":
-                en_menu = False
-
-            elif accion == "SALIR":
-                corriendo = False
-                
                 pygame.mixer.music.load("musica/cancionfondo.mp3")
                 pygame.mixer.music.set_volume(0.1)
                 pygame.mixer.music.play(-1)
                 
                 en_menu = False
+
+            elif accion == "SALIR":
+                corriendo = False
+                
 
     if en_menu:
 
@@ -312,7 +306,7 @@ while corriendo:
     texto = font.render(f"Puntos: {puntos}", True, (255, 255, 255))
     screen.blit(texto, (20, 20))
 
+
     pygame.display.flip()
     clock.tick(60)
 
-   
