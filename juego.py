@@ -136,6 +136,7 @@ def reiniciar_juego():
     
     pygame.mixer.music.stop()
     pygame.mixer.music.play(-1)
+
 while corriendo:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

@@ -86,7 +86,7 @@ class Personaje:
             self.x = -21
             self.velocidad_x = 0
 
-    # Limite derecho
+    # Limite derecho 
         elif self.x > ancho_pantalla - self.ancho:
              self.x = ancho_pantalla - self.ancho
              self.velocidad_x = 0
